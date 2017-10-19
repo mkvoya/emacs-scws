@@ -1,0 +1,3 @@
+* emacs-scws
+
+Emacs dynamic module for [[https://github.com/hightman/scws][SCWS]] (Simple Chinese Word Segmentation/简易中文分词系统).
