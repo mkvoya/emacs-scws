@@ -25,9 +25,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
 
 int plugin_is_GPL_compatible;
 
-#define DICT "/usr/local/etc/dict.utf8.xdb"
-#define RULE "/usr/local/etc/rules.utf8.ini"
-
 static char *
 retrieve_string (emacs_env *env, emacs_value str)
 {
