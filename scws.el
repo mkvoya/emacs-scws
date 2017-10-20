@@ -39,5 +39,22 @@
       (error "scws-module-new failed")))
   (scws-module-send-text scws--object string))
 
+;;;###autoload
+(defun scws-word-at-point ()
+  "Return Chinese word at point."
+  (interactive)                         ; Mainly for testing
+  (let* ((string (thing-at-point 'word))
+         (bounds (bounds-of-thing-at-point 'word))
+         (offset (and bounds (- (point) (car bounds))))
+         (length 0))
+    (when string
+      (catch 'found
+        (dolist (word (scws string))
+          (setq length (+ length (length word)))
+          (if (> length offset)
+              (progn
+                (message "%s" word)
+                (throw 'found word))))))))
+
 (provide 'scws)
 ;;; scws.el ends here

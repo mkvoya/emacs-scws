@@ -16,3 +16,7 @@ Emacs dynamic module for [[https://github.com/hightman/scws][SCWS]] (Simple Chin
 *** ~(scws STRING)~
 
 对 STRING 进行分词操作，返回一个 String 列表.
+
+*** ~(scws-word-at-point)~
+
+返回光标下的中文词汇，如果没有，返回 ~nil~.
