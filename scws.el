@@ -51,10 +51,10 @@
       (catch 'found
         (dolist (word (scws string))
           (setq length (+ length (length word)))
-          (if (> length offset)
-              (progn
-                (message "%s" word)
-                (throw 'found word))))))))
+          (when (> length offset)
+            (when (called-interactively-p 'any)
+              (message "%s" word))
+            (throw 'found word)))))))
 
 (provide 'scws)
 ;;; scws.el ends here
