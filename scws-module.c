@@ -28,42 +28,70 @@ int plugin_is_GPL_compatible;
 #define DICT "/usr/local/etc/dict.utf8.xdb"
 #define RULE "/usr/local/etc/rules.utf8.ini"
 
-static emacs_value
-Fscws_module_cut (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+static char *
+retrieve_string (emacs_env *env, emacs_value str)
 {
-  emacs_value lisp_str = args[0];
-  ptrdiff_t size = 0;
   char *buf = NULL;
+  ptrdiff_t size = 0;
+
+  env->copy_string_contents (env, str, NULL, &size);
+
+  buf = malloc (size);
+  if (buf == NULL) return NULL;
+
+  env->copy_string_contents (env, str, buf, &size);
+
+  return buf;
+}
+
+static void
+scws_module_free (void *arg)
+{
+  scws_free ((scws_t) arg);
+}
+
+static emacs_value
+Fscws_module_new (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  char *dict;
+  char *rule;
+  scws_t s;
+
+  dict = retrieve_string (env, args[0]);
+  rule = retrieve_string (env, args[1]);
+  s = scws_new ();
+  if (s == NULL) return env->intern (env, "nil");
+  scws_set_charset (s, "utf8");
+  scws_set_dict (s, dict, SCWS_XDICT_XDB);
+  scws_set_rule (s, rule);
+
+  return env->make_user_ptr (env, scws_module_free, s);
+}
+
+static emacs_value
+Fscws_module_send_text (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  scws_t s;
+  char *text;
+  scws_res_t res, cur;
   emacs_value values = env->intern (env, "nil");
   emacs_value Qcons = env->intern (env, "cons");
 
-  env->copy_string_contents (env, lisp_str, buf, &size);
-  buf = malloc (size);
-  env->copy_string_contents (env, lisp_str, buf, &size);
-
-  scws_t s;
-  scws_res_t res, cur;
-  /* XXX: Check for erros.  */
-  s = scws_new ();
-  scws_set_charset (s, "utf8");
-  scws_set_dict (s, DICT, SCWS_XDICT_XDB);
-  scws_set_rule (s, RULE);
-
-  scws_send_text (s, buf, strlen (buf));
+  s = env->get_user_ptr (env, args[0]);
+  text = retrieve_string (env, args[1]);
+  scws_send_text (s, text, strlen (text));
   while ((res = cur = scws_get_result (s)))
     {
       while (cur != NULL)
         {
           emacs_value cargs[] =
-            { env->make_string (env, buf + cur->off, cur->len),
+            { env->make_string (env, text + cur->off, cur->len),
               values };
           values = env->funcall (env, Qcons, 2, cargs);
           cur = cur->next;
         }
       scws_free_result (res);
     }
-  scws_free (s);
-
   emacs_value rargs[] = {values};
   return env->funcall (env, env->intern (env, "reverse"), 1, rargs);
 }
@@ -118,7 +146,8 @@ emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, lsym, \
 		 env->make_function (env, amin, amax, csym, doc, data))
 
-  DEFUN ("scws-module-cut", Fscws_module_cut, 1, 1, "Cut S", NULL);
+  DEFUN ("scws-module-new", Fscws_module_new, 2, 2, "初始化 scws 对象，参数为词典和规则文件.", NULL);
+  DEFUN ("scws-module-send-text", Fscws_module_send_text, 2, 2, "发送待分词的字符串，参数为 scws 对象和字符串.", NULL);
 
 #undef DEFUN
 

@@ -11,4 +11,4 @@ scws-module.so: scws-module.o
 	$(CC) -shared -lscws $< -o $@
 
 test: scws-module.so
-	$(EMACS) -Q --batch -L . -l $< --eval '(message "%S" (scws-module-cut "我来到北京清华大学"))'
+	$(EMACS) --batch -Q -L . -l scws --eval '(message "%S" (scws "我来到北京清华大学"))'
