@@ -4,15 +4,12 @@ Emacs dynamic module for [[https://github.com/hightman/scws][SCWS]] (Simple Chin
 
 ** Sample
 
-~~~ elisp
-(require 'scws)
-
+#+BEGIN_SRC elisp
 (setq scws-dict "/usr/local/etc/dict.utf8.xdb"
       scws-rule "/usr/local/etc/rules.utf8.ini")
 
-(scws "我来到北京清华大学")
-     => ("我" "来到" "北京" "清华大学")
-~~~
+(scws "我来到北京清华大学") ;; => ("我" "来到" "北京" "清华大学")
+#+END_SRC
 
 ** Interface
 
