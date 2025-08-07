@@ -1,4 +1,4 @@
-;;; scws.el --- SCWS binding of Emacs Lisp           -*- lexical-binding: t; -*-
+;;; jieba.el --- jieba binding of Emacs Lisp           -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2017  Chunyang Xu
 
@@ -24,23 +24,23 @@
 
 ;;; Code:
 
-(require 'scws-module)
+(require 'jieba-module)
 
-(defvar scws-dict "/usr/local/etc/dict.utf8.xdb" "XDB 词典.")
-(defvar scws-rule "/usr/local/etc/rules.utf8.ini" "rules.ini 规则集.")
+(defvar jieba-dict "/usr/local/etc/dict.utf8.xdb" "XDB 词典.")
+(defvar jieba-rule "/usr/local/etc/rules.utf8.ini" "rules.ini 规则集.")
 
-(defvar scws--object nil)
+(defvar jieba--object nil)
 
 ;;;###autoload
-(defun scws (string)
+(defun jieba (string)
   "对 STRING 进行分词操作，返回一个 String 列表."
-  (unless scws--object
-    (unless (setq scws--object (scws-module-new scws-dict scws-rule))
-      (error "scws-module-new failed")))
-  (scws-module-send-text scws--object string))
+  (unless jieba--object
+    (unless (setq jieba--object (jieba-module-new jieba-dict jieba-rule))
+      (error "jieba-module-new failed")))
+  (jieba-module-send-text jieba--object string))
 
 ;;;###autoload
-(defun scws-word-at-point ()
+(defun jieba-word-at-point ()
   "Return Chinese word at point."
   (interactive)                         ; Mainly for testing
   (let* ((string (thing-at-point 'word))
@@ -49,12 +49,12 @@
          (length 0))
     (when string
       (catch 'found
-        (dolist (word (scws string))
+        (dolist (word (jieba string))
           (setq length (+ length (length word)))
           (when (> length offset)
             (when (called-interactively-p 'any)
               (message "%s" word))
             (throw 'found word)))))))
 
-(provide 'scws)
-;;; scws.el ends here
+(provide 'jieba)
+;;; jieba.el ends here
